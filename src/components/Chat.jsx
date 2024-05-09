@@ -1,8 +1,8 @@
 import { Badge, Box, Container } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
 import { useAppContext } from "../context/appContext";
-import Messages from "./Messages";
 import { BsChevronDoubleDown } from "react-icons/bs";
+import { useEffect, useState } from "react";
+import Messages from "./Messages";
 
 export default function Chat() {
   const [height, setHeight] = useState(window.innerHeight - 205);
@@ -13,11 +13,8 @@ export default function Chat() {
     isOnBottom,
     unviewedMessageCount,
   } = useAppContext();
-  useEffect(() => {
-    window.addEventListener("resize", () => {
-      setHeight(window.innerHeight - 205);
-    });
-  }, []);
+
+  useEffect(() => window.addEventListener("resize", () => setHeight(window.innerHeight - 205)), []);
 
   return (
     <Container maxW="600px" pb="20px">

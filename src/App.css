@@ -1,32 +1,21 @@
 body {
-  min-height: 100vh;
   min-height: -webkit-fill-available;
-}
-html {
-  height: -webkit-fill-available;
-}
-
-::-webkit-scrollbar {
-  width: 5px;
+  min-height: 100%;
+  --light-background: #f0f2f5;
+  --divider: #ccd2d6;
 }
 
-/* Track */
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
+html, #root { height: 100% }
 
-/* Handle */
+::-webkit-scrollbar { width: 5px }
+
+::-webkit-scrollbar-track { background: var(--divider) }
+
 ::-webkit-scrollbar-thumb {
-  /* background: #888; */
   background: #3faaac;
   border-radius: 5px;
 }
 
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #2c7a7b;
-}
+::-webkit-scrollbar-thumb:hover { background: #2c7a7b }
 
-a {
-  color: teal !important;
-}
+a { color: teal !important }

@@ -12,19 +12,12 @@ const AppContextProvider = ({ children }) => {
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [routeHash, setRouteHash] = useState("");
   const [isOnBottom, setIsOnBottom] = useState(false);
-  const [newIncomingMessageTrigger, setNewIncomingMessageTrigger] =
-    useState(null);
+  const [newIncomingMessageTrigger, setNewIncomingMessageTrigger] = useState(null);
   const [unviewedMessageCount, setUnviewedMessageCount] = useState(0);
   const [countryCode, setCountryCode] = useState("");
   const [isInitialLoad, setIsInitialLoad] = useState(false);
 
-  useEffect(() => {
-    // Effect to scroll to bottom on initial message load
-    if (isInitialLoad) {
-      setIsInitialLoad(false);
-      scrollToBottom();
-    }
-  }, [messages]);
+  useEffect(() => { if (isInitialLoad) { setIsInitialLoad(false); scrollToBottom() } }, [messages])
 
   const getLocation = async () => {
     try {
@@ -34,63 +27,41 @@ const AppContextProvider = ({ children }) => {
 
       setCountryCode(countryCode);
       localStorage.setItem("countryCode", countryCode);
-    } catch (error) {
-      console.error(
-        `error getting location from api.db-ip.com:`,
-        error.message
-      );
-    }
+    } 
+    catch (error) { console.error(`error getting location from api.db-ip.com:`, error.message) }
   };
 
-  const randomUsername = () => {
-    return `@user${Date.now().toString().slice(-4)}`;
-  };
+  const randomUsername = () => `@user${Date.now().toString().slice(-4)}`
+  
   const initializeUser = (session) => {
-    setSession(session);
-    // const {
-    //   data: { session },
-    // } = await supabase.auth.getSession();
-
     let username;
-    if (session) {
-      username = session.user.user_metadata.user_name;
-    } else {
-      username = localStorage.getItem("username") || randomUsername();
-    }
+    
+    setSession(session)
+
+    if (session) username = session.user.user_metadata.user_name  
+    else username = localStorage.getItem("username") || randomUsername()
+
     setUsername(username);
     localStorage.setItem("username", username);
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      initializeUser(session);
-    });
+    supabase.auth.getSession().then(({ data: { session } }) => initializeUser(session))
 
     getMessagesAndSubscribe();
 
-    const storedCountryCode = localStorage.getItem("countryCode");
-    if (storedCountryCode && storedCountryCode !== "undefined")
-      setCountryCode(storedCountryCode);
+    const storedCountryCode = localStorage.getItem("countryCode")
+
+    if (storedCountryCode && storedCountryCode !== "undefined") setCountryCode(storedCountryCode);
     else getLocation();
 
-    const {
-      data: { subscription: authSubscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("onAuthStateChange", { _event, session });
-      initializeUser(session);
-    });
-
-    // const { hash, pathname } = window.location;
-    // if (hash && pathname === "/") {
-    //   console.log("hash", hash);
-    //   setRouteHash(hash);
-    // }
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => initializeUser(session) 
+    )
 
     return () => {
       // Remove supabase channel subscription by useEffect unmount
-      if (myChannel) {
-        supabase.removeChannel(myChannel);
-      }
+      if (myChannel) supabase.removeChannel(myChannel)
 
       authSubscription.unsubscribe();
     };
@@ -99,14 +70,11 @@ const AppContextProvider = ({ children }) => {
   useEffect(() => {
     if (!newIncomingMessageTrigger) return;
 
-    if (newIncomingMessageTrigger.username === username) {
-      scrollToBottom();
-    } else {
-      setUnviewedMessageCount((prevCount) => prevCount + 1);
-    }
+    if (newIncomingMessageTrigger.username === username) scrollToBottom() 
+    else setUnviewedMessageCount((prevCount) => prevCount + 1)
   }, [newIncomingMessageTrigger]);
 
-  const handleNewMessage = (payload) => {
+  function handleNewMessage(payload){
     setMessages((prevMessages) => [payload.new, ...prevMessages]);
     //* needed to trigger react state because I need access to the username state
     setNewIncomingMessageTrigger(payload.new);
@@ -139,38 +107,28 @@ const AppContextProvider = ({ children }) => {
     await getInitialMessages();
 
     if (!myChannel) {
-      // mySubscription = supabase
-      // .from("messages")
-      // .on("*", (payload) => {
-      //   handleNewMessage(payload);
-      // })
-      // .subscribe();
-
       myChannel = supabase
         .channel("custom-all-channel")
         .on(
           "postgres_changes",
           { event: "*", schema: "public", table: "messages" },
-          (payload) => {
-            handleNewMessage(payload);
-          }
+          payload => handleNewMessage(payload)
         )
         .subscribe();
     }
   };
 
   const scrollRef = useRef();
+  
   const onScroll = async ({ target }) => {
     if (target.scrollHeight - target.scrollTop <= target.clientHeight + 1) {
       setUnviewedMessageCount(0);
       setIsOnBottom(true);
-    } else {
-      setIsOnBottom(false);
-    }
+    } 
+    else setIsOnBottom(false) 
 
     //* Load more messages when reaching top
     if (target.scrollTop === 0) {
-      // console.log("messages.length :>> ", messages.length);
       const { data, error } = await supabase
         .from("messages")
         .select()
@@ -191,9 +149,7 @@ const AppContextProvider = ({ children }) => {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   };
 
-  return (
-    <AppContext.Provider
-      value={{
+  return <AppContext.Provider value={{
         messages,
         loadingInitial,
         error,
@@ -209,13 +165,12 @@ const AppContextProvider = ({ children }) => {
         country: countryCode,
         unviewedMessageCount,
         session,
-      }}
-    >
-      {children}
-    </AppContext.Provider>
-  );
+      }}>
+
+    {children}
+  </AppContext.Provider>
 };
 
 const useAppContext = () => useContext(AppContext);
 
-export { AppContext as default, AppContextProvider, useAppContext };
+export { AppContext as default, AppContextProvider, useAppContext }
