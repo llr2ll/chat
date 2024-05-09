@@ -19,12 +19,12 @@ export default function Header() {
       borderBottom="20px solid #edf2f7"
     >
       <GridItem justifySelf="start" m="2">
-        <Image src="/logo.png" height="30px" ml="2" />
+        <Image src="/public/favicon.ico" height="30px" ml="2" />
       </GridItem>
       {session ? (
         <>
           <GridItem justifySelf="end" alignSelf="center" mr="4">
-            Welcome <strong>{username}</strong>
+            Bem Vindo <strong>{username}</strong>
           </GridItem>
           <Button
             marginRight="4"
