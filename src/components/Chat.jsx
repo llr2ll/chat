@@ -5,59 +5,28 @@ import { useEffect, useState } from "react";
 import Messages from "./Messages";
 
 export default function Chat() {
-  const [height, setHeight] = useState(window.innerHeight - 205);
-  const {
-    scrollRef,
-    onScroll,
-    scrollToBottom,
-    isOnBottom,
-    unviewedMessageCount,
-  } = useAppContext();
+  const { scrollRef, onScroll, scrollToBottom, isOnBottom, unviewedMessageCount } = useAppContext();
+  const [height, setHeight] = useState(window.innerHeight - 65);
 
-  useEffect(() => window.addEventListener("resize", () => setHeight(window.innerHeight - 205)), []);
+  useEffect(() => window.addEventListener("resize", setHeight(window.innerHeight - 65)), []);
 
-  return (
-    <Container maxW="600px" pb="20px">
-      <Box
-        bg="white"
-        p="5"
-        overflow="auto"
-        borderRadius="10px"
-        height={height}
-        onScroll={onScroll}
-        ref={scrollRef}
-      >
-        <Messages />
-        {!isOnBottom && (
-          <div
-            style={{
-              position: "sticky",
-              bottom: 8,
-              // right: 0,
-              float: "right",
-              cursor: "pointer",
-            }}
-            onClick={scrollToBottom}
-          >
-            {unviewedMessageCount > 0 ? (
-              <Badge
-                ml="1"
-                fontSize="0.8em"
-                colorScheme="green"
-                display="flex"
-                borderRadius="7px"
-                padding="3px 5px"
-                alignItems="center"
-              >
+  return <Container width="100%" margin={0} padding={0} maxWidth="auto">
+    <Box bg="#fffcf6" p="5" overflow="auto" borderRadius="10px" height={height} onScroll={onScroll} ref={scrollRef}>
+      <Messages />
+      
+      {!isOnBottom && (
+        <div style={{ position: "sticky", bottom: 8, float: "right", cursor: "pointer" }} onClick={scrollToBottom}>
+          {unviewedMessageCount > 0 ?
+              <Badge ml="1" fontSize="0.8em" colorScheme="green" display="flex" borderRadius="7px" padding="3px 5px" alignItems="center">
                 {unviewedMessageCount}
+              
                 <BsChevronDoubleDown style={{ marginLeft: "3px" }} />
-              </Badge>
-            ) : (
+              </Badge> 
+            : 
               <BsChevronDoubleDown style={{ marginLeft: "3px" }} />
-            )}
-          </div>
-        )}
-      </Box>
-    </Container>
-  );
+          }
+        </div>
+      )}
+    </Box>
+  </Container>
 }
